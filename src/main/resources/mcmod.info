@@ -1,0 +1,15 @@
+[{
+  "modid": "gregtech_addon_coreminer",
+  "name": "GregTech-Addon_CoreMiner",
+  "description": "This Mod adds ore core miner to GregTech.",
+  "mcversion": "1.7.10",
+  "version": "0.01",
+  "logoFile": "",
+  "url": "",
+  "updateUrl": "",
+  "authors": ["Str4tos"],
+  "credits": "Notch and Mojang for Minecraft, Alblaka and his Team for IndustrialCraft, Mr. Brain for many of the Crop Textures, OvermindDL for helping with Code, TheSirusKing and matix for a few Textures, Gregorius Techneticies and Blood Asp for best mod.",
+  "parent": "",
+  "screenshots": [],
+  "dependencies": ["Industrialcraft", "GregTech-Addon"]
+}]
