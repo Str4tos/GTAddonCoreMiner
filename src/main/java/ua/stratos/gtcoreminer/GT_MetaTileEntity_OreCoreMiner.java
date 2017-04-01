@@ -1,7 +1,5 @@
 package ua.stratos.gtcoreminer;
 
-import static gregtech.api.enums.GT_Values.V;
-
 import java.util.ArrayList;
 
 import gregtech.api.enums.OrePrefixes;
@@ -189,7 +187,7 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 
 		if (posOffset.chunkPosX == 0 || posOffset.chunkPosZ == 0 || posOffset.chunkPosX == 1
 				|| posOffset.chunkPosZ == 1) {
-			if (itemIsStone(new ItemStack(newBlock))) {
+			if (itemIsOredict(new ItemStack(newBlock))) {
 				mMineList.add(posOffset);
 			}
 		}
@@ -214,15 +212,18 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 		return false;
 	}
 
-	public boolean itemIsStone(ItemStack itemstack) {
+	public boolean itemIsOredict(ItemStack itemstack) {
 		int[] oreidArray = OreDictionary.getOreIDs(itemstack);
-
+		boolean result = false;
 		for (int oreid : oreidArray) {
-			if (oreid >= 0) {
-				return OreDictionary.getOreName(oreid).startsWith("ston");
-			}
+			String oreName = OreDictionary.getOreName(oreid);
+			result = oreName.startsWith("ston");
+			result = oreName.startsWith("dirt");
+			if(result)
+				break;
+			
 		}
-		return false;
+		return result;
 	}
 
 	@Override
@@ -231,7 +232,7 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 				"All items are automatically put in chest",
 				"Has a place for batteries: 4",
 				"Mine area 48x48x7", 
-				"Controller position 24, 24, 0(Center-bottom)", 
+				"Controller position Center(24)-Center(24)-Bottom(0)", 
 				"Beginning of mining from the center and to the full height."};
 	}
 
