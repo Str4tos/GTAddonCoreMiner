@@ -34,7 +34,8 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 	private int mProgressTime = 0;
 	private int areaSize = 0;
 	private int currentAltitude = 0;
-	private boolean isEndOreCore = false;
+	private int amoutCycles = 0;
+	//private boolean isEndOreCore = false;
 
 	private final ArrayList<ChunkPosition> mMineList = new ArrayList();
 
@@ -91,15 +92,19 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 
 				}
 				if (mMineList.isEmpty()) {
+					if (/* isEndOreCore && areaSize > 5 || */ areaSize > maxProgresstime()) {
+						areaSize = 0;
+						currentAltitude = 0;
+						amoutCycles++;
+						if (amoutCycles > 3)
+							StopMachine(aBaseMetaTileEntity);
+						return;
+					}
 					if (currentAltitude < 6) {
 						currentAltitude++;
 						return;
 					}
-					if (isEndOreCore && areaSize > 5 || areaSize > maxProgresstime()) {
-						StopMachine(aBaseMetaTileEntity);
-						return;
-					}
-					isEndOreCore = true;
+					// isEndOreCore = true;
 					areaSize++;
 					currentAltitude = 0;
 					return;
@@ -151,13 +156,12 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 	}
 
 	public void StopMachine(IGregTechTileEntity aBaseMetaTileEntity) {
-		isEndOreCore = false;
+		//isEndOreCore = false;
 		currentAltitude = 0;
 		mProgressTime = 0;
 		mMineList.clear();
 		aBaseMetaTileEntity.disableWorking();
 		aBaseMetaTileEntity.setActive(false);
-
 	}
 
 	public void AddBlocToMineList(ChunkPosition posOffset) {
@@ -171,18 +175,18 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 			if ((tTileEntity != null) && (tTileEntity instanceof GT_TileEntity_Ores)
 					&& ((GT_TileEntity_Ores) tTileEntity).mNatural == true) {
 				mMineList.add(posOffset);
-				isEndOreCore = false;
+				// isEndOreCore = false;
 				return;
 			}
 		}
+
 		int tMetaID = getBaseMetaTileEntity().getMetaIDOffset(posOffset.chunkPosX, posOffset.chunkPosY,
 				posOffset.chunkPosZ);
 		ItemData tAssotiation = GT_OreDictUnificator.getAssociation(new ItemStack(newBlock, 1, tMetaID));
 		if (tAssotiation != null && tAssotiation.mPrefix.toString().startsWith("ore")) {
 			mMineList.add(posOffset);
-			isEndOreCore = false;
+			// isEndOreCore = false;
 			return;
-
 		}
 
 		if (posOffset.chunkPosX == 0 || posOffset.chunkPosZ == 0 || posOffset.chunkPosX == 1
@@ -217,23 +221,18 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 		boolean result = false;
 		for (int oreid : oreidArray) {
 			String oreName = OreDictionary.getOreName(oreid);
-			result = oreName.startsWith("ston");
-			result = oreName.startsWith("dirt");
-			if(result)
-				break;
-			
+			if (oreName.startsWith("stone") || oreName.startsWith("dirt"))
+				return true;
 		}
 		return result;
 	}
 
 	@Override
 	public String[] getDescription() {
-		return new String[] { "Does not have a buffer of items", 
-				"All items are automatically put in chest",
-				"Has a place for batteries: 4",
-				"Mine area 48x48x7", 
-				"Controller position Center(24)-Center(24)-Bottom(0)", 
-				"Beginning of mining from the center and to the full height."};
+		return new String[] { "Does not have a buffer of items", "All items are automatically put in chest",
+				"Has a place for batteries: 4", "Mine area 48x48x7",
+				"Controller position Center(24)-Center(24)-Bottom(0)",
+				"Beginning of mining from the center and to the full height." };
 	}
 
 	@Override
@@ -303,7 +302,7 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 
 	@Override
 	public int maxProgresstime() {
-		return 24;
+		return 26;
 	}
 
 	@Override
@@ -315,14 +314,16 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 	public void saveNBTData(NBTTagCompound aNBT) {
 		aNBT.setInteger("areaSize", areaSize);
 		aNBT.setInteger("currentAltitude", currentAltitude);
-		aNBT.setBoolean("isEndOreCore", isEndOreCore);
+		aNBT.setInteger("amoutCycles", amoutCycles);
+		//aNBT.setBoolean("isEndOreCore", isEndOreCore);
 	}
 
 	@Override
 	public void loadNBTData(NBTTagCompound aNBT) {
 		areaSize = aNBT.getInteger("areaSize");
 		currentAltitude = aNBT.getInteger("currentAltitude");
-		isEndOreCore = aNBT.getBoolean("isEndOreCore");
+		amoutCycles = aNBT.getInteger("amoutCycles");
+		//isEndOreCore = aNBT.getBoolean("isEndOreCore");
 	}
 
 	@Override
@@ -407,25 +408,17 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 	@Override
 	public ITexture[] getTexture(IGregTechTileEntity aBaseMetaTileEntity, byte aSide, byte aFacing, byte aColorIndex,
 			boolean aActive, boolean aRedstone) {
-		if (aSide > 3 || 1 == aSide) {
-			if (aSide == aFacing) {
-				return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16],
-						new GT_RenderedTexture(aActive ? Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER_ACTIVE
-								: Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER),
-						new GT_RenderedTexture(Textures.BlockIcons.OVERLAY_PIPE_OUT) };
-			} else {
-				return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16],
-
-						new GT_RenderedTexture(aActive ? Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER_ACTIVE
-								: Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER) };
-			}
+		if (aSide == aFacing) {
+			return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16],
+					new GT_RenderedTexture(Textures.BlockIcons.OVERLAY_PIPE_OUT) };
+		}
+		byte activeSide = (byte) (aFacing == 5 ? 2 : aFacing + 1);
+		if (aSide == activeSide || aSide == 1) {
+			return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16],
+					new GT_RenderedTexture(aActive ? Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER_ACTIVE
+							: Textures.BlockIcons.OVERLAY_FRONT_ROCK_BREAKER) };
 		} else {
-			if (aSide == aFacing) {
-				return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16],
-						new GT_RenderedTexture(Textures.BlockIcons.OVERLAY_PIPE_OUT) };
-			} else {
-				return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16] };
-			}
+			return new ITexture[] { Textures.BlockIcons.CASING_BLOCKS[16] };
 		}
 	}
 
