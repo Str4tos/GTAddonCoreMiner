@@ -1,5 +1,7 @@
 package ua.stratos.gtcoreminer;
 
+import java.io.File;
+
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -16,14 +18,20 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 
 @Mod(modid = "gt_miner_stratos", name = "GT Ore Miner by Stratos", version = "0.1")
 public class GTMinerMod {
 
 	public static GT_MetaTileEntity_OreCoreMiner GTCoreMiner;
+	public static boolean isUseEnergy = true;
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
+		
+		initConfig(event);
+		
 		GTCoreMiner = new GT_MetaTileEntity_OreCoreMiner(22994, "gt.stratos.orecoreminer", "Ore Core Miner");
 		long bits = GT_ModHandler.RecipeBits.NOT_REMOVABLE | GT_ModHandler.RecipeBits.REVERSIBLE
 				| GT_ModHandler.RecipeBits.BUFFERED;
@@ -38,4 +46,20 @@ public class GTMinerMod {
 
 	}
 
+	public static void initConfig(FMLInitializationEvent event) { 
+		Configuration config = new Configuration(new File("config/GTMinerMod.cfg"));
+	    try {
+	        config.load();
+	        Property isUseEnergyProp = config.get(Configuration.CATEGORY_GENERAL, 
+	                "isUseEnergy",
+	                "true");
+
+	        isUseEnergy = isUseEnergyProp.getBoolean();
+	    } catch (Exception e) {
+	        // Failed reading/writing, just continue
+	    } finally {
+	        // Save props to config IF config changed
+	        if (config.hasChanged()) config.save();
+	    }
+	}
 }

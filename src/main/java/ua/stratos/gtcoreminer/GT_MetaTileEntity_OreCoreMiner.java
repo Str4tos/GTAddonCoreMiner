@@ -54,10 +54,12 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 			if (!aBaseMetaTileEntity.isAllowedToWork())
 				return;
 			// Usage EU
-			if (!aBaseMetaTileEntity.decreaseStoredEnergyUnits(64, false)) {
-				if (!hasCanContinueWork())
-					StopMachine(aBaseMetaTileEntity);
-				return;
+			if(GTMinerMod.isUseEnergy){
+				if (!aBaseMetaTileEntity.decreaseStoredEnergyUnits(64, false)) {
+					if (!hasCanContinueWork())
+						StopMachine(aBaseMetaTileEntity);
+					return;
+				}
 			}
 			if (++mProgressTime > 20) {
 				mProgressTime = 0;
@@ -199,6 +201,8 @@ public class GT_MetaTileEntity_OreCoreMiner extends MetaTileEntity {
 	}
 
 	public boolean hasCanContinueWork() {
+		if(!GTMinerMod.isUseEnergy)
+			return true;
 		if (mInventory[0] != null) {
 			ItemStack battarySlot = mInventory[0];
 			if (GT_ModHandler.isElectricItem(battarySlot)
